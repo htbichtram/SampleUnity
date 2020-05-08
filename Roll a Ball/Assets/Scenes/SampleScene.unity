@@ -252,6 +252,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 45
       objectReference: {fileID: 0}
+    - target: {fileID: 7965997506376304170, guid: cbc4b5295ff4642429cb5d8b9f48b15b,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7965997506376304173, guid: cbc4b5295ff4642429cb5d8b9f48b15b,
         type: 3}
       propertyPath: m_Name
@@ -1019,7 +1024,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &967764285
 SphereCollider:
   m_ObjectHideFlags: 0
