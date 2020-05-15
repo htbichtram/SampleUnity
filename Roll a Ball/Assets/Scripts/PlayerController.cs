@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
     public Vector3 worldPosition;
     public GameObject ground;
     public LayerMask groundMask;
+    public LayerMask pickUpMask;
+    public List<Collider> selectedPickUps;    
 
     // Start is called before the first frame update
     void Start()
@@ -24,16 +26,28 @@ public class PlayerController : MonoBehaviour
         
         SetCountText(); 
         winText.text = "";
+        selectedPickUps = new List<Collider>();
+        Debug.Log("Start");
     }    
     
     // Update is called once per frame
     void Update() {
         if (Input.GetMouseButtonUp(0)){                        
-            RaycastHit hitPoint = new RaycastHit();                       
+            RaycastHit groundHitPoint = new RaycastHit();
+            RaycastHit pickUpHitPoint = new RaycastHit();
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);            
             
-            if (Physics.Raycast(ray, out hitPoint, 1000.0f, groundMask))
-                Instantiate(prefabObject, new Vector3(hitPoint.point.x, 0.5f, hitPoint.point.z),  Quaternion.identity, pickUps.transform);
+            // clicked on a pick-up
+            if (Physics.Raycast(ray, out pickUpHitPoint, 1000.0f, pickUpMask)) {
+                Debug.Log("clicked on a pick-up");
+                // pick-up does not exits in selected list
+                if (!selectedPickUps.Contains(pickUpHitPoint.collider))
+                    selectedPickUps.Add(pickUpHitPoint.collider);
+            // clicked on ground
+            } else if (Physics.Raycast(ray, out groundHitPoint, 1000.0f, groundMask)) {
+                Debug.Log("clicked on ground");
+                Instantiate(prefabObject, new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z),  Quaternion.identity, pickUps.transform);
+            }
 
             // Plane plane = new Plane(ground.transform.position, 0);
             // float distance;
@@ -47,17 +61,25 @@ public class PlayerController : MonoBehaviour
     }
     void FixedUpdate()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        // float moveHorizontal = Input.GetAxis("Horizontal");
+        // float moveVertical = Input.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-        rBody.AddForce(movement * speed);
+        if (selectedPickUps.Count != 0 && selectedPickUps[0] != null) {                                    
+            float moveHorizontal = selectedPickUps[0].transform.position.x - rBody.transform.position.x;
+            float moveVertical = selectedPickUps[0].transform.position.z - rBody.transform.position.z;
+
+            Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+            rBody.AddForce(movement * speed);            
+        }
     }
 
     void OnTriggerEnter(Collider other) {
         if (other.gameObject.CompareTag("Pick Up"))
-        {
+        {            
+            selectedPickUps.Remove(other);
             other.gameObject.SetActive(false);
+            rBody.velocity = Vector3.zero;
+            rBody.angularVelocity = Vector3.zero;
             count++;
             SetCountText();
         }
@@ -66,8 +88,8 @@ public class PlayerController : MonoBehaviour
     void SetCountText()
     {
         countText.text = "Count: " + count.ToString();
-        if (count >= 11)
-            winText.text = "You Win!";
+        // if (count >= 11)
+        //     winText.text = "You Win!";
     }
 
 }
