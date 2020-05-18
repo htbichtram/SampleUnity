@@ -16,7 +16,8 @@ public class PlayerController : MonoBehaviour
     public GameObject ground;
     public LayerMask groundMask;
     public LayerMask pickUpMask;
-    public List<Collider> selectedPickUps;    
+    public List<Collider> selectedPickUps;   
+    public ObjectManager objectManager = new ObjectManager(); 
 
     // Start is called before the first frame update
     void Start()
@@ -27,7 +28,10 @@ public class PlayerController : MonoBehaviour
         SetCountText(); 
         winText.text = "";
         selectedPickUps = new List<Collider>();
-        Debug.Log("Start");
+        
+        for (int i = 0; i < ObjectManager.MAX_OBJECT_NUM; i++) {
+            objectManager.AddNewObject(Instantiate(prefabObject, Vector3.zero,  Quaternion.identity, pickUps.transform));
+        }        
     }    
     
     // Update is called once per frame
@@ -46,7 +50,7 @@ public class PlayerController : MonoBehaviour
             // clicked on ground
             } else if (Physics.Raycast(ray, out groundHitPoint, 1000.0f, groundMask)) {
                 Debug.Log("clicked on ground");
-                Instantiate(prefabObject, new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z),  Quaternion.identity, pickUps.transform);
+                objectManager.ActiveObject(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
             }
 
             // Plane plane = new Plane(ground.transform.position, 0);
@@ -81,7 +85,9 @@ public class PlayerController : MonoBehaviour
             rBody.velocity = Vector3.zero;
             rBody.angularVelocity = Vector3.zero;
             count++;
+            objectManager.StoreObject(other.gameObject);
             SetCountText();
+
         }
     }
 
