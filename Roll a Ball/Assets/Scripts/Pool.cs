@@ -28,6 +28,8 @@ public class Pool : MonoBehaviour
 
     Stack<GameObject> pooledInstances;
     List<GameObject> aliveInstances;
+    public bool hardPoolSize = false;
+    public bool destroyOutSizeObject = false;
 
     public GameObject Prefab { get { return prefab; } }
 
@@ -60,8 +62,8 @@ public class Pool : MonoBehaviour
         Transform parent = null,
         bool useLocalPosition = false,
         bool useLocalRotation = false)
-    {
-        if (pooledInstances.Count <= 0) // Every game object has been spawned!
+    {        
+        if (pooledInstances.Count <= 0 && !hardPoolSize ) // Every game object has been spawned!
         {
             GameObject newlyInstantiatedObject = Instantiate(prefab);
 
@@ -127,7 +129,10 @@ public class Pool : MonoBehaviour
         obj.transform.localEulerAngles = Vector3.zero;
 
         aliveInstances.RemoveAt(index);
-        pooledInstances.Push(obj);
+        if (destroyOutSizeObject && pooledInstances.Count >= initialPoolsize)
+            Destroy(obj);
+        else
+            pooledInstances.Push(obj);
     }
 
     public bool IsResponsibleForObject(GameObject obj)
