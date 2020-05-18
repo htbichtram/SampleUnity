@@ -29,9 +29,9 @@ public class PlayerController : MonoBehaviour
         winText.text = "";
         selectedPickUps = new List<Collider>();
         
-        for (int i = 0; i < ObjectManager.MAX_OBJECT_NUM; i++) {
-            objectManager.AddNewObject(Instantiate(prefabObject, Vector3.zero,  Quaternion.identity, pickUps.transform));
-        }        
+        // for (int i = 0; i < ObjectManager.MAX_OBJECT_NUM; i++) {
+        //     objectManager.AddNewObject(Instantiate(prefabObject, Vector3.zero,  Quaternion.identity, pickUps.transform));
+        // }
     }    
     
     // Update is called once per frame
@@ -50,7 +50,8 @@ public class PlayerController : MonoBehaviour
             // clicked on ground
             } else if (Physics.Raycast(ray, out groundHitPoint, 1000.0f, groundMask)) {
                 Debug.Log("clicked on ground");
-                objectManager.ActiveObject(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
+                prefabObject.Spawn(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
+                // objectManager.ActiveObject(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
             }
 
             // Plane plane = new Plane(ground.transform.position, 0);
@@ -81,11 +82,11 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Pick Up"))
         {            
             selectedPickUps.Remove(other);
-            other.gameObject.SetActive(false);
             rBody.velocity = Vector3.zero;
             rBody.angularVelocity = Vector3.zero;
             count++;
-            objectManager.StoreObject(other.gameObject);
+            // objectManager.StoreObject(other.gameObject);
+            other.gameObject.Kill();
             SetCountText();
 
         }

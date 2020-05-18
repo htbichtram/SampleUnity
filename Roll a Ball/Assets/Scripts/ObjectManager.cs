@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectManager
+public class ObjectManager : MonoBehaviour
 {
     public static int MAX_OBJECT_NUM = 50;
     public List<GameObject> objectList;
