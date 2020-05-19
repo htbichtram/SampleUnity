@@ -19,6 +19,8 @@ public class PlayerController : MonoBehaviour
     public List<Collider> selectedPickUps;   
     public ObjectManager objectManager = new ObjectManager(); 
 
+    public List<GameObject> dyingPickups;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +30,7 @@ public class PlayerController : MonoBehaviour
         SetCountText(); 
         winText.text = "";
         selectedPickUps = new List<Collider>();
+        dyingPickups = new List<GameObject>();
         
         // for (int i = 0; i < ObjectManager.MAX_OBJECT_NUM; i++) {
         //     objectManager.AddNewObject(Instantiate(prefabObject, Vector3.zero,  Quaternion.identity, pickUps.transform));
@@ -52,32 +55,26 @@ public class PlayerController : MonoBehaviour
             // clicked on ground
             } else if (Physics.Raycast(ray, out groundHitPoint, 1000.0f, groundMask)) {
                 Debug.Log("clicked on ground");
-                prefabObject.Spawn(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
+                GameObject pickupObject = prefabObject.Spawn(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));                
                 // objectManager.ActiveObject(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
-            }
+                pickupObject.GetComponent<Animator>().SetInteger("chooseColor",  (int)Random.Range(0.0f, 2.0f));
+            }    
+        } 
 
-            // Plane plane = new Plane(ground.transform.position, 0);
-            // float distance;
-            // Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            // if (plane.Raycast(ray, out distance))
-            // {
-            //     worldPosition = ray.GetPoint(distance);
-            //     Instantiate(prefabObject, new Vector3(worldPosition.x, 0.5f, worldPosition.z),  Quaternion.identity, pickUps.transform);
-            // }            
-        }
+        for (int i = 0; i < dyingPickups.Count; i++) {
+            if (dyingPickups[i].GetComponent<Animator>().GetCurrentAnimatorStateInfo(2).IsName("Pickup Die Anim")) {  
+                dyingPickups[i].Kill();
+                dyingPickups.RemoveAt(i);
+            }
+        }           
     }
     void FixedUpdate()
     {
-        // float moveHorizontal = Input.GetAxis("Horizontal");
-        // float moveVertical = Input.GetAxis("Vertical");
-
-        if (selectedPickUps.Count != 0 && selectedPickUps[0] != null) {                                    
-            float moveHorizontal = selectedPickUps[0].transform.position.x - rBody.transform.position.x;
-            float moveVertical = selectedPickUps[0].transform.position.z - rBody.transform.position.z;
-
-            Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-            rBody.AddForce(movement * speed); 
-            GetComponent<Animator>().SetBool("isMoving", true);           
+        if (selectedPickUps.Count != 0 && selectedPickUps[0] != null) {
+            GetComponent<Animator>().SetBool("isMoving", true);
+            Vector3 movement = new Vector3(selectedPickUps[0].transform.position.x, 0.0f, selectedPickUps[0].transform.position.z);  
+            float step =  speed * Time.deltaTime;
+            transform.parent.position = Vector3.MoveTowards(transform.parent.position, movement, step);                       
         }
     }
 
@@ -85,12 +82,12 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Pick Up"))
         {            
             selectedPickUps.Remove(other);
-            rBody.velocity = Vector3.zero;
-            rBody.angularVelocity = Vector3.zero;
             GetComponent<Animator>().SetBool("isMoving", false);
             count++;
             // objectManager.StoreObject(other.gameObject);
-            other.gameObject.Kill();
+            other.gameObject.GetComponent<Animator>().SetTrigger("isDying");
+            // other.gameObject.Kill();
+            dyingPickups.Add(other.gameObject);
             SetCountText();
 
         }
