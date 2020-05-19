@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     public List<GameObject> selectedPickUps;   
     public ObjectManager objectManager = new ObjectManager(); 
 
-    public List<GameObject> dyingPickups;
+    // public List<GameObject> dyingPickups;
 
     // Start is called before the first frame update
     void Start()
@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
         SetCountText(); 
         winText.text = "";
         selectedPickUps = new List<GameObject>();
-        dyingPickups = new List<GameObject>();
+        // dyingPickups = new List<GameObject>();
         
         // for (int i = 0; i < ObjectManager.MAX_OBJECT_NUM; i++) {
         //     objectManager.AddNewObject(Instantiate(prefabObject, Vector3.zero,  Quaternion.identity, pickUps.transform));
@@ -62,12 +62,12 @@ public class PlayerController : MonoBehaviour
             }    
         } 
 
-        for (int i = 0; i < dyingPickups.Count; i++) {
-            if (dyingPickups[i].GetComponent<Animator>().GetCurrentAnimatorStateInfo(2).IsName("Pickup Die Anim")) {  
-                dyingPickups[i].Kill();
-                dyingPickups.RemoveAt(i);
-            }
-        }           
+        // for (int i = 0; i < dyingPickups.Count; i++) {
+        //     if (dyingPickups[i].GetComponent<Animator>().GetCurrentAnimatorStateInfo(2).IsName("Pickup Die Anim")) {  
+        //         dyingPickups[i].Kill();
+        //         dyingPickups.RemoveAt(i);
+        //     }
+        // }           
     }
     void FixedUpdate()
     {
@@ -88,7 +88,7 @@ public class PlayerController : MonoBehaviour
             // objectManager.StoreObject(other.gameObject);
             other.gameObject.GetComponent<Animator>().SetTrigger("isDying");
             // other.gameObject.Kill();
-            dyingPickups.Add(other.gameObject);
+            // dyingPickups.Add(other.gameObject);
             SetCountText();
 
         }

@@ -961,7 +961,6 @@ MonoBehaviour:
     m_Bits: 512
   selectedPickUps: []
   objectManager: {fileID: 0}
-  dyingPickups: []
 --- !u!54 &967764290
 Rigidbody:
   m_ObjectHideFlags: 0
