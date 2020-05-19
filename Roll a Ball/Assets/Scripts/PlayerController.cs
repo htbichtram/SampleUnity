@@ -32,7 +32,9 @@ public class PlayerController : MonoBehaviour
         // for (int i = 0; i < ObjectManager.MAX_OBJECT_NUM; i++) {
         //     objectManager.AddNewObject(Instantiate(prefabObject, Vector3.zero,  Quaternion.identity, pickUps.transform));
         // }
-    }    
+
+        GetComponent<Animator>().SetBool("isMoving", false);
+    }
     
     // Update is called once per frame
     void Update() {
@@ -74,7 +76,8 @@ public class PlayerController : MonoBehaviour
             float moveVertical = selectedPickUps[0].transform.position.z - rBody.transform.position.z;
 
             Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-            rBody.AddForce(movement * speed);            
+            rBody.AddForce(movement * speed); 
+            GetComponent<Animator>().SetBool("isMoving", true);           
         }
     }
 
@@ -84,6 +87,7 @@ public class PlayerController : MonoBehaviour
             selectedPickUps.Remove(other);
             rBody.velocity = Vector3.zero;
             rBody.angularVelocity = Vector3.zero;
+            GetComponent<Animator>().SetBool("isMoving", false);
             count++;
             // objectManager.StoreObject(other.gameObject);
             other.gameObject.Kill();
