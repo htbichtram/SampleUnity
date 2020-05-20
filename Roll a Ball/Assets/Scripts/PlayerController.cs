@@ -16,8 +16,11 @@ public class PlayerController : MonoBehaviour
     public GameObject ground;
     public LayerMask groundMask;
     public LayerMask pickUpMask;
-    public List<GameObject> selectedPickUps;   
-    public ObjectManager objectManager = new ObjectManager(); 
+    private List<GameObject> selectedPickUps;   
+    private ObjectManager objectManager = new ObjectManager(); 
+    public int cheeringTarget;
+    public float cheeringTime;
+    private float startCheeringTime = 0;
 
     // public List<GameObject> dyingPickups;
 
@@ -67,15 +70,26 @@ public class PlayerController : MonoBehaviour
         //         dyingPickups[i].Kill();
         //         dyingPickups.RemoveAt(i);
         //     }
-        // }           
+        // }  
+
+        if (startCheeringTime != 0 && (Time.time - startCheeringTime) >= cheeringTime) {
+            GetComponent<Animator>().SetBool("isCheering", false);
+            startCheeringTime = 0;            
+        }
     }
     void FixedUpdate()
     {
         if (selectedPickUps.Count != 0 && selectedPickUps[0] != null) {
-            GetComponent<Animator>().SetBool("isMoving", true);
+            Vector3 targetPostition = new Vector3( selectedPickUps[0].transform.position.x, 
+                                        transform.position.y, 
+                                        selectedPickUps[0].transform.position.z ) ;
+            transform.LookAt( targetPostition ) ;
+
+            GetComponent<Animator>().SetBool("isMoving", true);  
+
             Vector3 movement = new Vector3(selectedPickUps[0].transform.position.x, 0.0f, selectedPickUps[0].transform.position.z);  
             float step =  speed * Time.deltaTime;
-            transform.parent.position = Vector3.MoveTowards(transform.parent.position, movement, step);                       
+            transform.position = Vector3.MoveTowards(transform.position, movement, step);                       
         }
     }
 
@@ -97,8 +111,11 @@ public class PlayerController : MonoBehaviour
     void SetCountText()
     {
         countText.text = "Count: " + count.ToString();
-        // if (count >= 11)
-        //     winText.text = "You Win!";
+        if (count >= cheeringTarget) {
+            GetComponent<Animator>().SetBool("isCheering", true);
+            startCheeringTime = Time.time;
+            count = 0;
+        }
     }
 
 }
