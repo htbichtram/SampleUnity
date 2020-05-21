@@ -6,6 +6,20 @@ using Randon= UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
+    private BoardManager boardScript;
+    private int level = 1;
+
+    void Awake()
+	{
+        boardScript = GetComponent<BoardManager>();
+		InitGame();
+    }
+
+    void InitGame()
+	{
+        boardScript.SetupScene(level);
+    }
+    
     // Start is called before the first frame update
     void Start()
     {
