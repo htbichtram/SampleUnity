@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
             } else if (Physics.Raycast(ray, out groundHitPoint, 1000.0f, groundMask)) {
                 Debug.Log("clicked on ground");
                 GameObject pickupObject = prefabObject.Spawn(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
-                int pickUpColor = 0;//(int)Random.Range(0.0f, 2.9f);
+                int pickUpColor = (int)Random.Range(0.0f, 2.9f);
                 pickupObject.GetComponent<Animator>().SetInteger("chooseColor",  pickUpColor);
                 
                 selectedPickUps.Add(pickupObject);
