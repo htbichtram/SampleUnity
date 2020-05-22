@@ -5,24 +5,25 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    private Rigidbody rBody;
+    private Rigidbody rBody;    
     public float speed;
     private int count;
     public Text countText;
     public Text winText;
     public GameObject prefabObject;
     public GameObject pickUps;
+    public GameObject fireParPrefab;
+    public GameObject exploreParPrefab;
     public Vector3 worldPosition;
     public GameObject ground;
     public LayerMask groundMask;
     public LayerMask pickUpMask;
-    private List<GameObject> selectedPickUps;   
-    private ObjectManager objectManager = new ObjectManager(); 
-    public int cheeringTarget;
-    public float cheeringTime;
-    private float startCheeringTime = 0;
-
-    // public List<GameObject> dyingPickups;
+    private List<GameObject> selectedPickUps;
+    public GameObject dyingPar;
+    public GameObject revivalPar;
+    public float revivalParTime = 4.0f;
+    [HideInInspector]
+    public float revivalParStartTime = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -33,13 +34,10 @@ public class PlayerController : MonoBehaviour
         SetCountText(); 
         winText.text = "";
         selectedPickUps = new List<GameObject>();
-        // dyingPickups = new List<GameObject>();
-        
-        // for (int i = 0; i < ObjectManager.MAX_OBJECT_NUM; i++) {
-        //     objectManager.AddNewObject(Instantiate(prefabObject, Vector3.zero,  Quaternion.identity, pickUps.transform));
-        // }
 
         GetComponent<Animator>().SetBool("isMoving", false);
+        dyingPar.SetActive(false);
+        revivalPar.SetActive(false);
     }
     
     // Update is called once per frame
@@ -58,27 +56,25 @@ public class PlayerController : MonoBehaviour
             // clicked on ground
             } else if (Physics.Raycast(ray, out groundHitPoint, 1000.0f, groundMask)) {
                 Debug.Log("clicked on ground");
-                GameObject pickupObject = prefabObject.Spawn(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));                
-                // objectManager.ActiveObject(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
-                pickupObject.GetComponent<Animator>().SetInteger("chooseColor",  (int)Random.Range(0.0f, 2.0f));
+                GameObject pickupObject = prefabObject.Spawn(new Vector3(groundHitPoint.point.x, 0.5f, groundHitPoint.point.z));
+                int pickUpColor = 0;//(int)Random.Range(0.0f, 2.9f);
+                pickupObject.GetComponent<Animator>().SetInteger("chooseColor",  pickUpColor);
+                
                 selectedPickUps.Add(pickupObject);
+                if (pickUpColor == 0)
+                    pickupObject.GetComponent<PickUp>().firePre = fireParPrefab.Spawn(new Vector3(groundHitPoint.point.x, 1.5f, groundHitPoint.point.z));
             }    
-        } 
+        }
 
-        // for (int i = 0; i < dyingPickups.Count; i++) {
-        //     if (dyingPickups[i].GetComponent<Animator>().GetCurrentAnimatorStateInfo(2).IsName("Pickup Die Anim")) {  
-        //         dyingPickups[i].Kill();
-        //         dyingPickups.RemoveAt(i);
-        //     }
-        // }  
-
-        if (startCheeringTime != 0 && (Time.time - startCheeringTime) >= cheeringTime) {
-            GetComponent<Animator>().SetBool("isCheering", false);
-            startCheeringTime = 0;            
+        if (revivalParStartTime != 0 && (Time.time - revivalParStartTime) >= revivalParTime) {
+            revivalPar.SetActive(false);
+            revivalParStartTime = 0;
         }
     }
     void FixedUpdate()
     {
+        if (GetComponent<Animator>().GetBool("isDying"))
+            return;
         if (selectedPickUps.Count != 0 && selectedPickUps[0] != null) {
             Vector3 targetPostition = new Vector3( selectedPickUps[0].transform.position.x, 
                                         transform.position.y, 
@@ -97,25 +93,22 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Pick Up"))
         {            
             selectedPickUps.Remove(other.gameObject);
-            GetComponent<Animator>().SetBool("isMoving", false);
+
             count++;
-            // objectManager.StoreObject(other.gameObject);
-            other.gameObject.GetComponent<Animator>().SetTrigger("isDying");
-            // other.gameObject.Kill();
-            // dyingPickups.Add(other.gameObject);
             SetCountText();
 
+            GetComponent<Animator>().SetBool("isMoving", false);
+            GetComponent<Animator>().SetBool("isDying", true);  
+            dyingPar.SetActive(true);
+
+            other.gameObject.GetComponent<Animator>().SetTrigger("isDying");
+            other.gameObject.GetComponent<PickUp>().explorePre = exploreParPrefab.Spawn(other.gameObject.transform.position);            
         }
     }
 
     void SetCountText()
     {
         countText.text = "Count: " + count.ToString();
-        if (count >= cheeringTarget) {
-            GetComponent<Animator>().SetBool("isCheering", true);
-            startCheeringTime = Time.time;
-            count = 0;
-        }
     }
 
 }
