@@ -156,4 +156,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 674dfbb6aa9e7324f9e6847c9b0d6e36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: -927199367670048503, guid: 329e531ea4e7bac4c8e6bf522f92dea9, type: 3}
   firePre: {fileID: 0}
+  explorePre: {fileID: 0}
